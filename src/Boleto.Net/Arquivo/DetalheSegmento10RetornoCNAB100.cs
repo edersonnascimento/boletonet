@@ -50,7 +50,7 @@ namespace BoletoNet
         public int Sequencia { get; set; }
 
         private static Regex _regex = new Regex(
-                @"^(?<NCL>.{3})(?<AG>\d{4})(?<CC>\d{5})(?<DAC>\d{1})10(?<DC>\d{6})(?<AGO>\d{4})(?<LT>\d{3})(?<DR\d{6})(?<ID>\d{16})" +
+                @"^(?<NCL>.{3})(?<AG>\d{4})(?<CC>\d{5})(?<DAC>\d{1})10(?<DC>\d{6})(?<AGO>\d{4})(?<LT>\d{3})(?<DR>\d{6})(?<ID>\d{16})" +
                 @"(?<RES>\s{4})(?<VLR>\d{17})(?<RES>\d{6})(?<TD>.{3})(?<RES>.{4})(?<SEQ>\d{6})(?<RES>.{3})06(?<RES>.{5})$"
             );
 

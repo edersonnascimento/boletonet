@@ -27,6 +27,18 @@ namespace BoletoNet
                     case 15:
                         _numeroDocumento = n + AbstractBanco.Mod10(n).ToString();
                         break;
+                    case 16:
+                        string  ndoc = n.Substring(0, 15),
+                                dv = n.Substring(15, 1);
+                        if(dv == AbstractBanco.Mod10(ndoc).ToString())
+                        {
+                            _numeroDocumento = n;
+                        }
+                        else
+                        {
+                            throw new Exception("Digito Verificador Inválido!");
+                        }
+                        break;
                     default:
                         throw new Exception("Tamanho inválido para o número do documento!");
                 }

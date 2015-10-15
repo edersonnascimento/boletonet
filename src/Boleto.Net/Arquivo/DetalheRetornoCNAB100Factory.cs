@@ -34,6 +34,10 @@ namespace BoletoNet
                 {
                     return new DetalheSegmento20RetornoCNAB100(linha);
                 }
+                else
+                {
+                    return null;
+                }
             }
             throw new NotImplementedException("Layout não implementado!");
         }

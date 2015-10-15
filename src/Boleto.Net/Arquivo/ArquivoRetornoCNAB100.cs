@@ -13,6 +13,7 @@ namespace BoletoNet
         public override void LerArquivoRetorno(IBanco banco, Stream arquivo)
         {
             this.Banco = banco;
+            ListaDetalhe = new List<AbstractDetalheSegmento>();
             try
             {
                 StreamReader stream = new StreamReader(arquivo, System.Text.Encoding.UTF8);
@@ -22,8 +23,11 @@ namespace BoletoNet
                 while ((linha = stream.ReadLine()) != null)
                 {
                     AbstractDetalheSegmento detalhe = DetalheRetornoCNAB100Factory.Create(linha);
-                    ListaDetalhe.Add(detalhe);
-                    OnLinhaLida(detalhe, linha);
+                    if (detalhe != null)
+                    {
+                        ListaDetalhe.Add(detalhe);
+                        OnLinhaLida(detalhe, linha);
+                    }
                 }
 
                 stream.Close();

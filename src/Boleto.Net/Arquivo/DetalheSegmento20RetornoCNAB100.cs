@@ -52,7 +52,7 @@ namespace BoletoNet
 
         private static Regex _regex = new Regex(
                 @"^(?<NCL>.{3})(?<AG>\d{4})(?<CC>\d{5})(?<DAC>\d{1})20(?<RES>\d{13})(?<ID>\d{16})(?<RES>\s{4})(?<COMP>\d{3})" +
-                @"(?<BANCO>\d{3})(?<CHAG>\d{4})(?<CHCC>\d{10})(?<CHN>\d{6})(?<VLR>\d{17})(?<BLOQ>{2})(?<RES>.{7})$"
+                @"(?<BANCO>\d{3})(?<CHAG>\d{4})(?<CHCC>\d{10})(?<CHN>\d{6})(?<VLR>\d{17})(?<BLOQ>\d{2})(?<RES>.{7})$"
             );
 
         public DetalheSegmento20RetornoCNAB100(string linha)
