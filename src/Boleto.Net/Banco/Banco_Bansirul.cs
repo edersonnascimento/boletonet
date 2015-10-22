@@ -273,7 +273,7 @@ namespace BoletoNet
 
             for (int i = seq.Length; i > 0; i--)
             {
-                s = s + (Convert.ToInt32(Microsoft.VisualBasic.Strings.Mid(seq, i, 1)) * p);
+                s = s + (Convert.ToInt32(seq.Substring(i, 1)) * p);
                 if (p == b)
                     p = 2;
                 else

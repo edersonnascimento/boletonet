@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Transdatasmart.Boleto.Net</id>
+    <version>2.1.3.0</version>
+    <title>Boleto.Net</title>
+    <authors>Equipe TDMax</authors>
+    <owners>Transdatasmart</owners>
+    <licenseUrl>http://opensource.org/licence/MIT</licenseUrl>
+    <projectUrl>http://10.250.248.251:90/</projectUrl>
+    <iconUrl>http://3.bp.blogspot.com/-nRIvzs8pKTY/U0G0sm4bTII/AAAAAAAAGXM/iLacdHvNNEc/s1600/boleto.jpg</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Biblioteca para emissão de boleto bancário e depósito identificado baseada no Boleto.Net (https://github.com/BoletoNet/boletonet)</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>Pagamento Boleto Depósito Identificado</tags>
+  </metadata>
+</package>

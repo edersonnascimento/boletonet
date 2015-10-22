@@ -412,7 +412,7 @@ namespace BoletoNet
 
             for (int i = seq.Length - 1; i >= 0; i--)
             {
-                r = (Convert.ToInt32(seq[i]) * p);
+                r = (Convert.ToInt32(seq.Substring(i, 1)) * p);
 
                 if (r > 9)
                     r = (r / 10) + (r % 10);
@@ -440,7 +440,7 @@ namespace BoletoNet
             int d, s = 0, p = 2, b = 9;
             for (int i = 0; i < seq.Length; i++)
             {
-                s = s + (Convert.ToInt32(seq[i]) * p);
+                s = s + (Convert.ToInt32(seq.Substring(i, 1)) * p);
                 p = (p < b) ? p + 1 : 2;
             }
 
@@ -464,9 +464,9 @@ namespace BoletoNet
                 throw new Exception("O parâmetro contém caracteres inválidos!");
 
             int r, s = 0, p = 2, b = 9;
-            for (int i = seq.Length; i > 0; i--)
+            for (int i = seq.Length - 1; i >= 0; i--)
             {
-                s = s + (Convert.ToInt32(seq[i]) * p);
+                s = s + (Convert.ToInt32(seq.Substring(i, 1)) * p);
                 p = (p < b) ? p + 1 : 2;
             }
 
@@ -489,9 +489,9 @@ namespace BoletoNet
                 throw new Exception("O parâmetro contém caracteres inválidos!");
 
             int d, s = 0, p = 2;
-            for (int i = seq.Length; i > 0; i--)
+            for (int i = seq.Length - 1; i >= 0; i--)
             {
-                s = s + (Convert.ToInt32(seq[i]) * p);
+                s = s + (Convert.ToInt32(seq.Substring(i, 1)) * p);
                 p = (p == b) ? 2 : p + 1;
             }
 
@@ -518,7 +518,7 @@ namespace BoletoNet
             int d, s = 0, p = 2, b = 9;
             for (int i = seq.Length - 1; i >= 0; i--)
             {
-                s += (Convert.ToInt32(seq[i]) * p);
+                s += (Convert.ToInt32(seq.Substring(i, 1)) * p);
                 p = (p >= b) ? 2 : p + 1;
             }
 
@@ -541,7 +541,7 @@ namespace BoletoNet
         {
             int mult = 0;
             int total = 0;
-            int pos = 1;
+            int pos = 0;
             //int res = 0;
             int ndig = 0;
             int nresto = 0;
@@ -553,9 +553,9 @@ namespace BoletoNet
                 mult = lim;
 
 
-            while (pos <= seq.Length)
+            while (pos < seq.Length)
             {
-                num = Microsoft.VisualBasic.Strings.Mid(seq, pos, 1);
+                num = seq.Substring(pos, 1);
                 total += Convert.ToInt32(num) * mult;
 
                 mult -= 1;
@@ -582,7 +582,7 @@ namespace BoletoNet
         {
             int mult = 0;
             int total = 0;
-            int pos = 1;
+            int pos = 0;
             int ndig = 0;
             int nresto = 0;
             string num = string.Empty;
@@ -592,9 +592,9 @@ namespace BoletoNet
             if (mult == 1)
                 mult = lim;
 
-            while (pos <= seq.Length)
+            while (pos < seq.Length)
             {
-                num = Microsoft.VisualBasic.Strings.Mid(seq, pos, 1);
+                num = seq.Substring(pos, 1);
                 total += Convert.ToInt32(num) * mult;
 
                 mult -= 1;
