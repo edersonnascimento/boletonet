@@ -388,13 +388,16 @@ namespace BoletoNet
 			}
 			else
 			{
-				if (boleto.NossoNumero.Length != 10)
+				if (boleto.NossoNumero.Length > 10)
 				{
 					throw new Exception(
 						"Nosso Número inválido, Para Caixa Econômica carteira indefinida, o Nosso Número deve conter 10 caracteres.");
 				}
 
-				if (!boleto.Cedente.Codigo.Equals(0))
+                if (boleto.NossoNumero.Length < 10)
+                    boleto.NossoNumero = Utils.FormatCode(boleto.NossoNumero, 10);
+
+                if (!boleto.Cedente.Codigo.Equals(0))
 				{
 					string codigoCedente = Utils.FormatCode(boleto.Cedente.Codigo.ToString(), 6);
 					string dvCodigoCedente = Mod10(codigoCedente).ToString(); //Base9 
