@@ -83,7 +83,7 @@ namespace BoletoNet
 											   constante, nossoNumero);
 				}
 				//17 POSIÇÕES
-				if (boleto.NossoNumero.Length == 17)
+				if (boleto.NossoNumero.Length == 15)
 				{
 					//104 - Caixa Econômica Federal S.A. 
 					//Carteira SR - 24 (cobrança sem registro) || Carteira RG - 14 (cobrança com registro)
@@ -123,7 +123,7 @@ namespace BoletoNet
 
 					//Posição 35 - 43
 					//De acordo com documentaçao, posição 9 a 17 do nosso numero
-					string terceiraParteNossoNumero = boleto.NossoNumero.Substring(8, 9);
+					string terceiraParteNossoNumero = boleto.NossoNumero.Substring(6, 9);
 
 					//Posição 44
 					string ccc = string.Format("{0}{1}{2}{3}{4}{5}{6}",
@@ -355,8 +355,23 @@ namespace BoletoNet
 				}
 			}
 
-			boleto.NossoNumero = string.Format("{0}-{1}", boleto.NossoNumero, Mod11Base9(boleto.NossoNumero)); //
-			//boleto.NossoNumero = string.Format("{0}{1}/{2}-{3}", boleto.Carteira, EMISSAO_CEDENTE, boleto.NossoNumero, Mod11Base9(boleto.Carteira + EMISSAO_CEDENTE + boleto.NossoNumero));
+            string modalidade = string.Empty;
+
+            switch (boleto.Carteira)
+            {
+                case "SR":
+                    modalidade = "2";
+                    break;
+                case "RG":
+                    modalidade = "1";
+                    break;
+                default:
+                    modalidade = boleto.Carteira;
+                    break;
+            }
+
+            //boleto.NossoNumero = string.Format("{0}-{1}", boleto.NossoNumero, Mod11Base9(boleto.NossoNumero)); //
+            boleto.NossoNumero = string.Format("{0}{1}/{2}-{3}", modalidade, EMISSAO_CEDENTE, boleto.NossoNumero, Mod11Base9(modalidade + EMISSAO_CEDENTE + boleto.NossoNumero));
 		}
 
 		public override void FormataNumeroDocumento(Boleto boleto)
@@ -368,7 +383,7 @@ namespace BoletoNet
 		{
 			if (boleto.Carteira.Equals("SR"))
 			{
-				if ((boleto.NossoNumero.Length != 10) && (boleto.NossoNumero.Length != 14) && (boleto.NossoNumero.Length != 17))
+				if (boleto.NossoNumero.Length > 15)
 				{
 					throw new Exception("Nosso Número inválido, Para Caixa Econômica - Carteira SR o Nosso Número deve conter 10, 14 ou 17 posições.");
 				}
@@ -388,27 +403,26 @@ namespace BoletoNet
 			}
 			else
 			{
-				if (boleto.NossoNumero.Length > 10)
-				{
+				if (boleto.NossoNumero.Length > 15)
 					throw new Exception(
 						"Nosso Número inválido, Para Caixa Econômica carteira indefinida, o Nosso Número deve conter 10 caracteres.");
-				}
+			}
 
-                if (boleto.NossoNumero.Length < 10)
-                    boleto.NossoNumero = Utils.FormatCode(boleto.NossoNumero, 10);
+			
+            if (boleto.NossoNumero.Length < 15)
+                boleto.NossoNumero = Utils.FormatCode(boleto.NossoNumero, 15);
 
-                if (!boleto.Cedente.Codigo.Equals(0))
-				{
-					string codigoCedente = Utils.FormatCode(boleto.Cedente.Codigo.ToString(), 6);
-					string dvCodigoCedente = Mod10(codigoCedente).ToString(); //Base9 
+            if (!boleto.Cedente.Codigo.Equals(0))
+			{
+				string codigoCedente = Utils.FormatCode(boleto.Cedente.Codigo.ToString(), 6);
+				string dvCodigoCedente = Mod10(codigoCedente).ToString(); //Base9 
 
-					if (boleto.Cedente.DigitoCedente.Equals(-1))
-						boleto.Cedente.DigitoCedente = Convert.ToInt32(dvCodigoCedente);
-				}
-				else
-				{
-					throw new Exception("Informe o código do cedente.");
-				}
+				if (boleto.Cedente.DigitoCedente.Equals(-1))
+					boleto.Cedente.DigitoCedente = Convert.ToInt32(dvCodigoCedente);
+			}
+			else
+			{
+				throw new Exception("Informe o código do cedente.");
 			}
 
 			if (boleto.Cedente.DigitoCedente == -1)
@@ -430,11 +444,11 @@ namespace BoletoNet
 			 */
 
 			if (!boleto.Carteira.Equals("CS"))
-			{
-				FormataCodigoBarra(boleto);
+            {
+                FormataCodigoBarra(boleto);
 				FormataLinhaDigitavel(boleto);
-				FormataNossoNumero(boleto);
-			}
+                FormataNossoNumero(boleto);
+            }
 		}
 
 		#region Métodos de geração do arquivo remessa
