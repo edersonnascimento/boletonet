@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Transdatasmart.Boleto.Net</id>
-    <version>2.1.6.0</version>
+    <version>$version$</version>
     <title>Boleto.Net</title>
     <authors>Equipe TDMax</authors>
     <owners>Transdatasmart</owners>
