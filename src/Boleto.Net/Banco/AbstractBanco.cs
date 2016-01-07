@@ -382,7 +382,7 @@ namespace BoletoNet
 
             if (rangeUtilizavel > 5500 || rangeUtilizavel < -3000)
                 throw new Exception("Data do vencimento fora do range de utilização proposto pela CENEGESC. Comunicado FEBRABAN de n° 082/2012 de 14/06/2012");
-
+            
             while (boleto.DataVencimento > dateBase.AddDays(9999))
                 dateBase = boleto.DataVencimento.AddDays(-(((Utils.DateDiff(DateInterval.Day, dateBase, boleto.DataVencimento) - 9999) - 1) + 1000));
 
