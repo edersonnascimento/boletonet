@@ -41,9 +41,13 @@ namespace BoletoNet
 
             //Formata o tamanho do número de nosso número
             if (boleto.NossoNumero.Length < 8)
+            {
                 boleto.NossoNumero = Utils.FormatCode(boleto.NossoNumero, 8);
+            }
             else if (boleto.NossoNumero.Length > 8)
+            {
                 throw new NotSupportedException("Para o banco Banrisul, o nosso número deve ter 08 posições e 02 dígitos verificadores (calculados automaticamente).");
+            }
             
             //Atribui o nome do banco ao local de pagamento
             if (boleto.LocalPagamento == "Até o vencimento, preferencialmente no ")
@@ -81,7 +85,7 @@ namespace BoletoNet
             if (boleto.NossoNumero.Length <= 10)
             {
                 boleto.NossoNumero = CalcularNCNossoNumero(boleto.NossoNumero);
-                boleto.NossoNumero = boleto.NossoNumero.Substring(0, 8) + "-" + boleto.NossoNumero.Substring(8, 1);
+                boleto.NossoNumero = boleto.NossoNumero.Substring(0, 8) + "-" + boleto.NossoNumero.Substring(8, 2);
             }
             else
             {
@@ -157,7 +161,7 @@ namespace BoletoNet
             StringBuilder campoLivre = new StringBuilder();
             campoLivre.Append(21);                                                                          // Constante "2", identifica o Produto + Constante "1", identifica o Sistema 
             campoLivre.Append(boleto.Cedente.ContaBancaria.Agencia.Substring(0, 4));                        // Agência do Cedente, se o NC (quatro primeiros dígitos) 			
-            campoLivre.Append(boleto.Cedente.Codigo.Substring(4, 7));                                       // Os quatro primeiros digitos do código do cedente é sempre a agência
+            campoLivre.Append(boleto.Cedente.Codigo.Replace(".", "").Replace("-", "").Substring(4, 7));     // Os quatro primeiros digitos do código do cedente é sempre a agência
             campoLivre.Append(boleto.NossoNumero.Replace(".", "").Replace("-", "").Substring(0, 8));        // Nosso Número, sem o NC (oito primeiros dígitos) 							
             campoLivre.Append(40);                                                                          // Constante "40"
 
@@ -588,9 +592,9 @@ namespace BoletoNet
             try
             {
                 TRegistroEDI reg = new TRegistroEDI();
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0001, 010, 0, "01REMESSA", ' ')); //001-009
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0010, 016, 0, "", ' ')); //010-026
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0027, 013, 0, cedente.Codigo, ' ')); //027-039
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0001, 009, 0, "01REMESSA", ' ')); //001-009
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0010, 017, 0, "", ' ')); //010-026
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0027, 013, 0, cedente.Codigo.Replace(".", "").Replace("-", ""), ' ')); //027-039
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0040, 007, 0, "", ' ')); //040-046
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0047, 030, 0, cedente.Nome.ToUpper(), ' ')); //047-076
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0077, 011, 0, "041BANRISUL", ' ')); //077-087
@@ -623,13 +627,14 @@ namespace BoletoNet
             {
                 //Variáveis Locais a serem Implementadas em nível de Config do Boleto...
                 boleto.Remessa.CodigoOcorrencia = "01"; //remessa p/ bANRISUL
-                //
+                boleto.NossoNumero = CalcularNCNossoNumero(Utils.FormatCode(boleto.NossoNumero, 8));
+
                 base.GerarDetalheRemessa(boleto, numeroRegistro, tipoArquivo);
                 //
                 TRegistroEDI reg = new TRegistroEDI();
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0001, 001, 0, "1", ' '));                                       //001-001
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0002, 016, 0, string.Empty, ' '));                              //002-017
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0018, 013, 0, boleto.Cedente.Codigo, ' '));                     //018-030 (sidnei.klein 22/11/2013: No Banrisul, o Código do Cedente não é a concatenação de Número da Conta com o Dígito Verificador.)
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0018, 013, 0, boleto.Cedente.Codigo.Replace(".", "").Replace("-", ""), ' '));                     //018-030 (sidnei.klein 22/11/2013: No Banrisul, o Código do Cedente não é a concatenação de Número da Conta com o Dígito Verificador.)
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0031, 007, 0, string.Empty, ' '));                              //031-037
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0038, 025, 0, boleto.NumeroDocumento, ' '));                    //038-062
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediNumericoSemSeparador_, 0063, 010, 0, boleto.NossoNumero, '0'));                        //063-072
