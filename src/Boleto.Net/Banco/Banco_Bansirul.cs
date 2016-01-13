@@ -566,12 +566,15 @@ namespace BoletoNet
                     //    vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Remessa: Informe o Código de Ocorrência!", Environment.NewLine);
                     //    vRetorno = false;
                     //}
-                    if (String.IsNullOrEmpty(boleto.Remessa.TipoDocumento))
-                    {
-                        vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Remessa: Informe o Tipo Documento!", Environment.NewLine);
-                        vRetorno = false;
-                    }
-                    else if (boleto.Remessa.TipoDocumento.Equals("06") && !String.IsNullOrEmpty(boleto.NossoNumero))
+                    
+                    // Removido verificação do tipo do documento porque no manual está especificado para não preencher nada em caso de tipo 0
+                    //if (String.IsNullOrEmpty(boleto.Remessa.TipoDocumento))
+                    //{
+                    //    vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Remessa: Informe o Tipo Documento!", Environment.NewLine);
+                    //    vRetorno = false;
+                    //}
+
+                    if (boleto.Remessa.TipoDocumento != null && boleto.Remessa.TipoDocumento.Equals("06"))
                     {
                         //Para o "Remessa.TipoDocumento = "06", não poderá ter NossoNumero Gerado!
                         vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Não pode existir NossoNumero para o Tipo Documento '06 - cobrança escritural'!", Environment.NewLine);
