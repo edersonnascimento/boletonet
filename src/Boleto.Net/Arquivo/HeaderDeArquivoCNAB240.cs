@@ -8,6 +8,8 @@ namespace BoletoNet
     {
         #region Variáveis
 
+        string _agencia;
+        string _cedente;
         string _mensagemRemessa;
         string _numeroRemessa;
         string _dataRemessa;
@@ -24,6 +26,18 @@ namespace BoletoNet
         #endregion
 
         #region Propriedades
+
+        public string Agencia
+        {
+            get { return _agencia; }
+            set { _agencia = value; }
+        }
+
+        public string Cedente
+        {
+            get { return _cedente; }
+            set { _cedente = value; }
+        }
 
         public string MensagemRemessa
         {

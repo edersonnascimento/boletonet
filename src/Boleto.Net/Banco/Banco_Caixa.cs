@@ -1067,12 +1067,16 @@ namespace BoletoNet
 				{
 					throw new Exception("Registro inválida. O detalhe não possuí as características do segmento T.");
 				}
+
 				DetalheSegmentoTRetornoCNAB240 segmentoT = new DetalheSegmentoTRetornoCNAB240(registro);
 				segmentoT.CodigoBanco = Convert.ToInt32(registro.Substring(0, 3));
 				segmentoT.idCodigoMovimento = Convert.ToInt32(registro.Substring(15, 2));
 				segmentoT.CodigoMovimento = new CodigoMovimento(001, segmentoT.idCodigoMovimento);
-				segmentoT.NossoNumero = registro.Substring(39, 17);
-				segmentoT.CodigoCarteira = Convert.ToInt32(registro.Substring(57, 1));
+                segmentoT.Agencia = Convert.ToInt32(registro.Substring(17, 5));
+                segmentoT.Cedente = Convert.ToInt32(registro.Substring(23, 6));
+                segmentoT.NossoNumero = registro.Substring(39, 17);
+                segmentoT.CodigoMovimento = new CodigoMovimento(001, segmentoT.idCodigoMovimento);
+                segmentoT.CodigoCarteira = Convert.ToInt32(registro.Substring(57, 1));
 				segmentoT.NumeroDocumento = registro.Substring(58, 11);
 				segmentoT.DataVencimento = registro.Substring(73, 8).ToString() == "00000000" ? DateTime.Now : DateTime.ParseExact(registro.Substring(73, 8), "ddMMyyyy", CultureInfo.InvariantCulture);
 				segmentoT.ValorTitulo = Convert.ToDecimal(registro.Substring(81, 15)) / 100;

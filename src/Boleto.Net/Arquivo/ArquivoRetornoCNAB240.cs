@@ -61,6 +61,8 @@ namespace BoletoNet
              {
                 StreamReader stream = new StreamReader(arquivo, System.Text.Encoding.UTF8);
                 string linha = "";
+                string agencia = string.Empty;
+                string cedente = string.Empty;
 
                 while ((linha = stream.ReadLine()) != null)
                 {
@@ -73,6 +75,10 @@ namespace BoletoNet
                         {
                             case "0": //Header de arquivo
                                 OnLinhaLida(null, linha, EnumTipodeLinhaLida.HeaderDeArquivo);
+                                detalheRetorno.HeaderArquivo = new HeaderDeArquivoCNAB240();
+                                detalheRetorno.HeaderArquivo.LerHeaderDeArquivoCNAB240(linha);
+                                agencia = detalheRetorno.HeaderArquivo.Agencia;
+                                cedente = detalheRetorno.HeaderArquivo.Cedente;
                                 break;
                             case "1": //Header de lote
                                 OnLinhaLida(null, linha, EnumTipodeLinhaLida.HeaderDeLote);
@@ -91,6 +97,8 @@ namespace BoletoNet
                                 }
                                 else
                                 {
+                                    linha = linha.Remove(17, 5).Insert(17, agencia);
+                                    linha = linha.Remove(23, 6).Insert(23, cedente);
                                     OnLinhaLida(detalheRetorno, linha, EnumTipodeLinhaLida.DetalheSegmentoT);
                                     //detalheRetorno.SegmentoT.LerDetalheSegmentoTRetornoCNAB240(linha);
                                     detalheRetorno.SegmentoT = banco.LerDetalheSegmentoTRetornoCNAB240(linha);

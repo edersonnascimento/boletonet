@@ -13,6 +13,7 @@ namespace BoletoNet
         private int _idCodigoMovimento;
         private CodigoMovimento _codigoMovimento;
         private int _agencia;
+        private int _cedente;
         private string _digitoAgencia;
         private long _conta;
         private string _digitoConta;
@@ -85,6 +86,12 @@ namespace BoletoNet
         {
             get { return _agencia; }
             set { _agencia = value; }
+        }
+
+        public int Cedente
+        {
+            get { return _cedente; }
+            set { _cedente = value; }
         }
 
         public string DigitoAgencia
