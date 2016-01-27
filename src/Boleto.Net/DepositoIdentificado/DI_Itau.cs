@@ -46,5 +46,12 @@ namespace BoletoNet
         }
 
         public DI_Itau() : base(new Banco_Itau()) { }
+
+        public override string MontaHtml()
+        {
+            Cedente.ContaBancaria.DigitoConta = AbstractBanco.Mod10(Cedente.ContaBancaria.Agencia + Cedente.ContaBancaria.Conta).ToString();
+
+            return base.MontaHtml();
+        }
     }
 }

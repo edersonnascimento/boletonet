@@ -21,10 +21,10 @@ namespace BoletoNet
 
         public DepositoIdentificado(IBanco banco)
         {
-            this.Banco = banco;
+            Banco = banco;
         }
 
-        public string MontaHtml()
+        public virtual string MontaHtml()
         {
             string html = Properties.Resources.Html_DI;
 
@@ -36,7 +36,7 @@ namespace BoletoNet
             html = Regex.Replace(html, "@ENDERECO2", string.Format("{0} / {1}", this.Cedente.Endereco.Cidade, this.Cedente.Endereco.UF));
 
             html = Regex.Replace(html, "@AGENCIA", this.Cedente.ContaBancaria.Agencia);
-            html = Regex.Replace(html, "@CONTA", string.Format("{0}-{1}", this.Cedente.ContaBancaria.Conta, this.Banco.Digito));
+            html = Regex.Replace(html, "@CONTA", string.Format("{0}-{1}", this.Cedente.ContaBancaria.Conta, this.Cedente.ContaBancaria.DigitoConta));
             html = Regex.Replace(html, "@NUMERO_DOCUMENTO", this.NumeroDocumento);
 
             html = Regex.Replace(html, "@VENCIMENTO", this.DataVencimento.ToString("dd/MM/yyyy"));

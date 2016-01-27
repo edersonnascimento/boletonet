@@ -1292,6 +1292,9 @@ namespace BoletoNet
             bool vRetorno = true;
             string vMsg = string.Empty;
             ////IMPLEMENTACAO PENDENTE...
+
+            cedente.ContaBancaria.DigitoConta = Mod10(cedente.ContaBancaria.Agencia + cedente.ContaBancaria.Conta).ToString();
+
             mensagem = vMsg;
             return vRetorno;
         }

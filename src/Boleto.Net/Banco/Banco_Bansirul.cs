@@ -12,10 +12,10 @@ namespace BoletoNet
     /// Felipe Silveira - Transis Informática
     /// </Author>
     internal class Banco_Banrisul : AbstractBanco, IBanco
-    {
-        private string _dacNossoNumero = string.Empty;
-        private int _primDigito;
-        private int _segDigito;
+    {        
+        private int ncDigito1;
+        private int ncDigito2;
+        private int dac;
 
         /// <author>
         /// Classe responsavel em criar os campos do Banco Banrisul.
@@ -41,12 +41,14 @@ namespace BoletoNet
 
             //Formata o tamanho do número de nosso número
             if (boleto.NossoNumero.Length < 8)
+            {
                 boleto.NossoNumero = Utils.FormatCode(boleto.NossoNumero, 8);
+            }
             else if (boleto.NossoNumero.Length > 8)
+            {
                 throw new NotSupportedException("Para o banco Banrisul, o nosso número deve ter 08 posições e 02 dígitos verificadores (calculados automaticamente).");
-
-            boleto.NossoNumero = CalcularNCNossoNumero(boleto.NossoNumero);
-
+            }
+            
             //Atribui o nome do banco ao local de pagamento
             if (boleto.LocalPagamento == "Até o vencimento, preferencialmente no ")
                 boleto.LocalPagamento += Nome;
@@ -80,8 +82,9 @@ namespace BoletoNet
 
         public override void FormataNossoNumero(Boleto boleto)
         {
-            if (boleto.NossoNumero.Length == 10)
+            if (boleto.NossoNumero.Length <= 10)
             {
+                boleto.NossoNumero = CalcularNCNossoNumero(boleto.NossoNumero);
                 boleto.NossoNumero = boleto.NossoNumero.Substring(0, 8) + "-" + boleto.NossoNumero.Substring(8, 2);
             }
             else
@@ -95,87 +98,93 @@ namespace BoletoNet
             throw new NotImplementedException("Função do fomata número do documento não implementada.");
         }
 
+        /// <summary>
+        /// Formata a linha digitavel no formato 041M2.1AAAd1bb ACCCCC.CCNNd2bb NNNNN.N40XXd3bb V  FFFF9999999999 
+        /// </summary>
+        /// <param name="boleto"></param>
         public override void FormataLinhaDigitavel(Boleto boleto)
         {
-            //041M2.1AAAd1 CCCCC.CCNNNd2 NNNNN.041XXd3 V FFFF9999999999
-            //OU 
-            //041M2.1AAAd1 ACCCCC.CCNNd2 NNNNN.N40XXd3 V FFFF9999999999
-            //(Isso depende da constante que usar) no caso de cima "041" no de baixo "40" antes do "XX"
+            StringBuilder codigoBarras = new StringBuilder();
 
-            string Campo1 = string.Empty;
-            string Campo2 = string.Empty;
-            string Campo3 = string.Empty;
-            string Campo4 = string.Empty;
-            string Campo5 = string.Empty;
+            // Gera campo 1            
+            StringBuilder campo1 = new StringBuilder();
+            campo1.Append(boleto.CodigoBarra.Codigo.Substring(0, 4));                   // Constante, Código do Banco junto a Câmara de Compensação + Moeda
+            campo1.Append(2);                                                           // Constante, identifica o Produto
+            campo1.Append(1);                                                           // Constante, identifica o Sistema BDL - Carteira de Letras
+            campo1.Append(boleto.CodigoBarra.Codigo.Substring(21, 3));                  // Agência, sem o NC, três primeiros dígitos
+            campo1.Append(Mod10Banri(campo1.ToString()));
 
-            string Cedente = boleto.Cedente.Codigo.Substring(4); //Os quatro primeiros digitos do código do cedente é sempre a agência
-            string NossoNumero = boleto.NossoNumero.Substring(0, 8);
+            codigoBarras.Append(campo1);
 
-            //Campo 1
-            string M = boleto.Moeda.ToString();
-            string AAA = boleto.Cedente.ContaBancaria.Agencia.Substring(1, 3);
-            string Metade1 = "041" + M + "2";
-            string Metade2 = "1" + AAA;
-            string d1 = Mod10Banri(Metade1 + Metade2).ToString();
-            Campo1 = Metade1 + "." + Metade2 + d1;
+            // Gera campo 2
+            StringBuilder campo2 = new StringBuilder();
+            campo2.Append(boleto.CodigoBarra.Codigo.Substring(24, 1));                  // Agência, sem o NC, ultimo dígito
+            campo2.Append(boleto.CodigoBarra.Codigo.Substring(25, 5));                  // Cendente
+            campo2.Append(boleto.CodigoBarra.Codigo.Substring(30, 2));                  // Cendente
+            campo2.Append(boleto.CodigoBarra.Codigo.Substring(33, 2));                  // Nosso número 2 primeiros dígitos
+            campo2.Append(Mod10Banri(campo2.ToString()));
 
-            //Campo 2
-            Metade1 = string.Empty;
-            Metade2 = string.Empty;
-            Metade1 = Cedente.Substring(0, 5);
-            //Metade2 = Cedente.Substring(5, 2) + NossoNumero.Substring(0, 2);
-            Metade2 = Cedente.Substring(5, 2) + NossoNumero.Substring(0, 3);
-            string d2 = Mod10Banri(Metade1 + Metade2).ToString();
-            Campo2 = Metade1 + "." + Metade2 + d2;
+            codigoBarras.Append(campo2);
 
-            //Campo 3
-            Metade1 = string.Empty;
-            Metade2 = string.Empty;
-            string XX = _primDigito.ToString() + _segDigito.ToString();
-            //Metade1 = NossoNumero.Substring(2, 5);
-            Metade1 = NossoNumero.Substring(3, 5);
-            //Metade2 = NossoNumero.Substring(7, 1) + "041" + XX;
-            Metade2 = "041" + XX;
-            string d3 = Mod10Banri(Metade1 + Metade2).ToString();
-            Campo3 = Metade1 + "." + Metade2 + d3;
+            // Gera campo 3
+            StringBuilder campo3 = new StringBuilder();
+            campo3.Append(boleto.CodigoBarra.Codigo.Substring(34, 6));                  // Nosso número 6 ultimos dígitos
+            campo3.Append(40);
+            campo3.Append(ncDigito1);                                                   // Digito 1 do número de controle
+            campo3.Append(ncDigito2);                                                   // Digito 2 do número de controle                                     // Constante do boleto
+            campo3.Append(Mod10Banri(campo3.ToString()));
 
-            //Campo 4
-            Campo4 = boleto.CodigoBarra.Codigo.Substring(4, 1);
+            codigoBarras.Append(campo3);
 
-            //Campo 5
-            string fatorVenc = FatorVencimento(boleto).ToString("0000");
-            string valor = boleto.ValorBoleto.ToString("f").Replace(",", "").Replace(".", "");
-            valor = Utils.FormatCode(valor, 10);
-            Campo5 = fatorVenc + valor;
+            // Gera campo 4
+            codigoBarras.Append(boleto.CodigoBarra.Codigo.Substring(4, 1));             // Dac
 
-            boleto.CodigoBarra.LinhaDigitavel = Campo1 + "  " + Campo2 + "  " + Campo3 + "  " + Campo4 + "  " + Campo5;
+            // Gera campo 5
+            codigoBarras.Append(boleto.CodigoBarra.Codigo.Substring(5, 14));            // Fator vencimento + valor
+
+            // Formata codigo de barras
+            codigoBarras.Insert(33, "  ").Insert(32, "  ").Insert(26, ".").Insert(21, "  ").Insert(15, ".").Insert(10, "  ").Insert(5, ".");
+
+            boleto.CodigoBarra.LinhaDigitavel = codigoBarras.ToString();
         }
 
         public override void FormataCodigoBarra(Boleto boleto)
         {
-            string campo1 = string.Empty;
-            string campo2 = string.Empty;
-            string campoLivre = string.Empty;
-            campo1 = "041" + boleto.Moeda.ToString();
-            int dacCodBarras;
-            string fatorVenc = FatorVencimento(boleto).ToString("0000");
-            string valor = boleto.ValorBoleto.ToString("f").Replace(",", "").Replace(".", "");
-            valor = Utils.FormatCode(valor, 10);
-            campo2 = fatorVenc + valor;
+            StringBuilder campo1 = new StringBuilder();
+            campo1.Append("041");
+            campo1.Append(boleto.Moeda);
 
-            string nossoNumero = boleto.NossoNumero.Replace(".", "").Replace("-", "");
-            nossoNumero = nossoNumero.Substring(0, 8);
-            //campoLivre = "21" + boleto.Cedente.ContaBancaria.Agencia.Substring(1, 3) + boleto.Cedente.ContaBancaria.Conta + nossoNumero + "041";
-            string codCedente = boleto.Cedente.Codigo.Substring(4);// Os quatro primeiros digitos do código do cedente é sempre a agência
-            campoLivre = "21" + boleto.Cedente.ContaBancaria.Agencia.Substring(1, 3) + codCedente + nossoNumero + "041";
-            string ncCodBarra = CalcularNCCodBarras(campoLivre);
-            Int32.TryParse(ncCodBarra.Substring(0, 1), out _primDigito);
-            Int32.TryParse(ncCodBarra.Substring(1, 1), out _segDigito);
-            campoLivre = campoLivre + ncCodBarra;
+            StringBuilder campo2 = new StringBuilder();
+            campo2.Append(FatorVencimento(boleto).ToString("0000"));
+            campo2.Append(boleto.ValorBoleto.ToString("f").Replace(",", "").Replace(".", "").PadLeft(10, '0'));
 
-            dacCodBarras = Mod11Peso2a9Banri(campo1 + campo2 + campoLivre);
+            StringBuilder campoLivre = new StringBuilder();
+            campoLivre.Append(21);                                                                          // Constante "2", identifica o Produto + Constante "1", identifica o Sistema 
+            campoLivre.Append(boleto.Cedente.ContaBancaria.Agencia.Substring(0, 4));                        // Agência do Cedente, se o NC (quatro primeiros dígitos) 			
+            campoLivre.Append(boleto.Cedente.Codigo.Replace(".", "").Replace("-", "").Substring(4, 7));     // Os quatro primeiros digitos do código do cedente é sempre a agência
+            campoLivre.Append(boleto.NossoNumero.Replace(".", "").Replace("-", "").Substring(0, 8));        // Nosso Número, sem o NC (oito primeiros dígitos) 							
+            campoLivre.Append(40);                                                                          // Constante "40"
 
-            boleto.CodigoBarra.Codigo = campo1 + dacCodBarras.ToString() + campo2 + campoLivre;
+            string ncCodBarra = CalcularNCCodBarras(campoLivre.ToString());
+            Int32.TryParse(ncCodBarra.Substring(0, 1), out ncDigito1);
+            Int32.TryParse(ncCodBarra.Substring(1, 1), out ncDigito2);
+            
+            campoLivre.Append(ncCodBarra);
+
+            StringBuilder calcularCodigo = new StringBuilder();
+            calcularCodigo.Append(campo1);
+            calcularCodigo.Append(campo2);
+            calcularCodigo.Append(campoLivre);
+
+            dac = Mod11Peso2a9Banri(calcularCodigo.ToString());
+
+            StringBuilder codigoBarras = new StringBuilder();
+            codigoBarras.Append(campo1);
+            codigoBarras.Append(dac);
+            codigoBarras.Append(campo2);
+            codigoBarras.Append(campoLivre);
+
+            boleto.CodigoBarra.Codigo = codigoBarras.ToString();
         }
 
         private int Mod10Banri(string seq)
@@ -557,12 +566,15 @@ namespace BoletoNet
                     //    vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Remessa: Informe o Código de Ocorrência!", Environment.NewLine);
                     //    vRetorno = false;
                     //}
-                    if (String.IsNullOrEmpty(boleto.Remessa.TipoDocumento))
-                    {
-                        vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Remessa: Informe o Tipo Documento!", Environment.NewLine);
-                        vRetorno = false;
-                    }
-                    else if (boleto.Remessa.TipoDocumento.Equals("06") && !String.IsNullOrEmpty(boleto.NossoNumero))
+                    
+                    // Removido verificação do tipo do documento porque no manual está especificado para não preencher nada em caso de tipo 0
+                    //if (String.IsNullOrEmpty(boleto.Remessa.TipoDocumento))
+                    //{
+                    //    vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Remessa: Informe o Tipo Documento!", Environment.NewLine);
+                    //    vRetorno = false;
+                    //}
+
+                    if (boleto.Remessa.TipoDocumento != null && boleto.Remessa.TipoDocumento.Equals("06"))
                     {
                         //Para o "Remessa.TipoDocumento = "06", não poderá ter NossoNumero Gerado!
                         vMsg += String.Concat("Boleto: ", boleto.NumeroDocumento, "; Não pode existir NossoNumero para o Tipo Documento '06 - cobrança escritural'!", Environment.NewLine);
@@ -583,9 +595,9 @@ namespace BoletoNet
             try
             {
                 TRegistroEDI reg = new TRegistroEDI();
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0001, 010, 0, "01REMESSA", ' ')); //001-009
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0010, 016, 0, "", ' ')); //010-026
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0027, 013, 0, cedente.Codigo, ' ')); //027-039
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0001, 009, 0, "01REMESSA", ' ')); //001-009
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0010, 017, 0, "", ' ')); //010-026
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0027, 013, 0, cedente.Codigo.Replace(".", "").Replace("-", ""), ' ')); //027-039
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0040, 007, 0, "", ' ')); //040-046
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0047, 030, 0, cedente.Nome.ToUpper(), ' ')); //047-076
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0077, 011, 0, "041BANRISUL", ' ')); //077-087
@@ -618,13 +630,14 @@ namespace BoletoNet
             {
                 //Variáveis Locais a serem Implementadas em nível de Config do Boleto...
                 boleto.Remessa.CodigoOcorrencia = "01"; //remessa p/ bANRISUL
-                //
+                boleto.NossoNumero = CalcularNCNossoNumero(Utils.FormatCode(boleto.NossoNumero, 8));
+
                 base.GerarDetalheRemessa(boleto, numeroRegistro, tipoArquivo);
                 //
                 TRegistroEDI reg = new TRegistroEDI();
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0001, 001, 0, "1", ' '));                                       //001-001
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0002, 016, 0, string.Empty, ' '));                              //002-017
-                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0018, 013, 0, boleto.Cedente.Codigo, ' '));                     //018-030 (sidnei.klein 22/11/2013: No Banrisul, o Código do Cedente não é a concatenação de Número da Conta com o Dígito Verificador.)
+                reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0018, 013, 0, boleto.Cedente.Codigo.Replace(".", "").Replace("-", ""), ' '));                     //018-030 (sidnei.klein 22/11/2013: No Banrisul, o Código do Cedente não é a concatenação de Número da Conta com o Dígito Verificador.)
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0031, 007, 0, string.Empty, ' '));                              //031-037
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0038, 025, 0, boleto.NumeroDocumento, ' '));                    //038-062
                 reg.CamposEDI.Add(new TCampoRegistroEDI(TTiposDadoEDI.ediNumericoSemSeparador_, 0063, 010, 0, boleto.NossoNumero, '0'));                        //063-072
