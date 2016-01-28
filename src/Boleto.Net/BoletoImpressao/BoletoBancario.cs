@@ -286,8 +286,12 @@ namespace BoletoNet
 				html.Append("<br />");
 				html.Append(Html.ReciboSacadoParte2);
 				html.Append(Html.ReciboSacadoParte3);
-
-				if (MostrarEnderecoCedente)
+                
+				if (MostrarEnderecoCedente 
+                    && Cedente.Endereco.End != string.Empty 
+                    && Cedente.Endereco.Cidade != string.Empty
+                    && Cedente.Endereco.UF != string.Empty
+                    && Cedente.Endereco.CEP != string.Empty)
 				{
 					html.Append(Html.ReciboSacadoParte10);
 				}
@@ -484,24 +488,23 @@ namespace BoletoNet
 					//Caso mostre o Endereço do Cedente
 					if (MostrarEnderecoCedente)
 					{
+                        StringBuilder end = new StringBuilder();
+
 						if (Cedente.Endereco == null)
 							throw new ArgumentNullException("Endereço do Cedente");
+                        
+                        end.AppendFormat("{0} ", Cedente.Endereco.End);
 
-						string Numero = !String.IsNullOrEmpty(Cedente.Endereco.Numero) ? Cedente.Endereco.Numero + ", " : "";
-						enderecoCedente = string.Concat(Cedente.Endereco.End, " , ", Numero);
+                        if (Cedente.Endereco.Numero != null && Cedente.Endereco.Numero != string.Empty)
+                            end.AppendFormat(", {0}", Cedente.Endereco.Numero);
+                        
+                        if (Cedente.Endereco.Bairro != null && Cedente.Endereco.Bairro != string.Empty)
+                            end.AppendFormat(", {0}", Cedente.Endereco.Bairro);
 
-						if (Cedente.Endereco.CEP == String.Empty)
-						{
-							enderecoCedente += string.Format("{0} - {1}/{2}", Cedente.Endereco.Bairro,
-															 Cedente.Endereco.Cidade, Cedente.Endereco.UF);
-						}
-						else
-						{
-							enderecoCedente += string.Format("{0} - {1}/{2} - CEP: {3}", Cedente.Endereco.Bairro,
-															 Cedente.Endereco.Cidade, Cedente.Endereco.UF,
-															 Utils.FormataCEP(Cedente.Endereco.CEP));
-						}
+                        end.AppendFormat(" - {0} / {1}", Cedente.Endereco.Cidade, Cedente.Endereco.UF);
+                        end.AppendFormat(" - CEP: {0}", Utils.FormataCEP(Cedente.Endereco.CEP));
 
+                        enderecoCedente = end.ToString();
 					}
 				}
 			}
@@ -639,7 +642,8 @@ namespace BoletoNet
 					.Replace("@NOSSONUMEROBB", Boleto.Banco.Codigo == 1 & (Boleto.Carteira.Equals("17-019") | Boleto.Carteira.Equals("17-027") | Boleto.Carteira.Equals("18-019")) ? Boleto.NossoNumero.Substring(3) : string.Empty)
 			#endregion Implementação para o Banco do Brasil
 
-.Replace("@NOSSONUMERO", Boleto.NossoNumero)
+                .Replace("@NOSSONUMERO", Boleto.NossoNumero)
+                .Replace("@=CEDENTECNPJ", String.Format("{0} - CNPJ: {1}", Cedente.Nome, Cedente.CPFCNPJ))
 				.Replace("@CARTEIRA", FormataDescricaoCarteira())
 				.Replace("@ESPECIE", Boleto.Especie)
 				.Replace("@QUANTIDADE", (Boleto.QuantidadeMoeda == 0 ? "" : Boleto.QuantidadeMoeda.ToString()))
