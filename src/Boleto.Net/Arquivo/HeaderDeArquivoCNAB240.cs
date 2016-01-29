@@ -72,6 +72,8 @@ namespace BoletoNet
                 if (Registro.Substring(7, 1) != "0")
                     throw new Exception("Registro inválido. O detalhe não possuí as características de Header de Arquivo.");
 
+                _agencia = Registro.Substring(52, 5);
+                _cedente = Registro.Substring(58, 6);
                 _mensagemRemessa = Registro.Substring(171, 20).Trim();
                 _numeroRemessa = Utils.FormatCode(Registro.Substring(157, 6).Trim(), "0", 6);
                 _dataRemessa = Convert.ToDecimal(Registro.Substring(143, 8)).ToString("00/00/0000");
