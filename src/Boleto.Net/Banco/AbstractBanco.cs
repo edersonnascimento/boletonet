@@ -394,7 +394,8 @@ namespace BoletoNet
         {
             return Regex.IsMatch(seq, "\\d+");
         }
-        internal static int Mod10(string seq)
+
+        public static int Mod10(string seq)
         {
             /* Variáveis
              * -------------

@@ -117,5 +117,21 @@ namespace BoletoNet.Testes
             Assert.AreEqual(boletoBancario.Boleto.CodigoBarra.Codigo, codigoBarraValida, "Código de Barra inválido");
         }
         #endregion
+
+        #region Carteira 25
+
+        [TestMethod]
+        public void Bradesco_Carteira_25_Digito_Agencia()
+        {
+            Assert.AreEqual(AbstractBanco.Mod11Peso2a9("2372"), 8);
+        }
+
+        [TestMethod]
+        public void Bradesco_Carteira_25_Digito_ContaCorrente()
+        {
+            Assert.AreEqual(AbstractBanco.Mod11Peso2a9("0008528"), 6);
+        }
+
+        #endregion
     }
 }

@@ -151,7 +151,7 @@ namespace BoletoNet
             var valorBoleto = boleto.ValorBoleto.ToString("N2").Replace(",", "").Replace(".", "");
             valorBoleto = Utils.FormatCode(valorBoleto, 10);
 
-            if (boleto.Carteira == "02" || boleto.Carteira == "03" || boleto.Carteira == "09" || boleto.Carteira == "19")
+            if (boleto.Carteira == "02" || boleto.Carteira == "03" || boleto.Carteira == "09" || boleto.Carteira == "19" || boleto.Carteira == "25")
             {
                 boleto.CodigoBarra.Codigo = string.Format("{0}{1}{2}{3}{4}", Codigo.ToString(), boleto.Moeda,
                 FatorVencimento(boleto), valorBoleto, FormataCampoLivre(boleto));
@@ -217,8 +217,10 @@ namespace BoletoNet
 
         public override void ValidaBoleto(Boleto boleto)
         {
-            if (boleto.Carteira != "02" && boleto.Carteira != "03" && boleto.Carteira != "06" && boleto.Carteira != "09" && boleto.Carteira != "16" && boleto.Carteira != "19")
-                throw new NotImplementedException("Carteira não implementada. Carteiras implementadas 02, 03, 06, 09, 16, 19.");
+            List<string> carteiras = new List<string>() { "03", "06", "09", "16", "19", "25" };
+
+            if (!carteiras.Contains(boleto.Carteira))
+                throw new NotImplementedException("Carteira não implementada. Carteiras implementadas 02, 03, 06, 09, 16, 19 e 25.");
 
             //O valor é obrigatório para a carteira 03
             if (boleto.Carteira == "03")
@@ -246,15 +248,25 @@ namespace BoletoNet
 
             //Verificar se a Agencia esta correta
             if (boleto.Cedente.ContaBancaria.Agencia.Length > 4)
+            {
                 throw new NotImplementedException("A quantidade de dígitos da Agência " + boleto.Cedente.ContaBancaria.Agencia + ", são de 4 números.");
+            }
             else if (boleto.Cedente.ContaBancaria.Agencia.Length < 4)
+            {
                 boleto.Cedente.ContaBancaria.Agencia = Utils.FormatCode(boleto.Cedente.ContaBancaria.Agencia, 4);
+                boleto.Cedente.ContaBancaria.DigitoAgencia = Mod11Peso2a9(boleto.Cedente.ContaBancaria.Agencia).ToString();
+            }
 
             //Verificar se a Conta esta correta
             if (boleto.Cedente.ContaBancaria.Conta.Length > 7)
+            {
                 throw new NotImplementedException("A quantidade de dígitos da Conta " + boleto.Cedente.ContaBancaria.Conta + ", são de 07 números.");
+            }
             else if (boleto.Cedente.ContaBancaria.Conta.Length < 7)
+            {
                 boleto.Cedente.ContaBancaria.Conta = Utils.FormatCode(boleto.Cedente.ContaBancaria.Conta, 7);
+                boleto.Cedente.ContaBancaria.DigitoConta = Mod11Peso2a9(boleto.Cedente.ContaBancaria.DigitoConta).ToString();
+            }
 
 
             //Atribui o nome do banco ao local de pagamento

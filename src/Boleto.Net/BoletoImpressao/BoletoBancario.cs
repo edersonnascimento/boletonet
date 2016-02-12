@@ -571,6 +571,9 @@ namespace BoletoNet
 					case 748:
 						agenciaCodigoCedente = string.Format("{0}.{1}.{2}", Cedente.ContaBancaria.Agencia, Cedente.ContaBancaria.OperacaConta, Cedente.Codigo);
 						break;
+                    case 237:
+                        agenciaCodigoCedente = string.Format("{0}-{1}/{2}-{3}", Cedente.ContaBancaria.Agencia, Cedente.ContaBancaria.DigitoAgencia, Utils.FormatCode(Cedente.ContaBancaria.Conta, 6), Cedente.ContaBancaria.DigitoConta);
+                        break;
 					case 41:
 						agenciaCodigoCedente = string.Format("{0}.{1}/{2}.{3}.{4}", Cedente.ContaBancaria.Agencia, Cedente.ContaBancaria.DigitoAgencia, Cedente.Codigo.Substring(4, 6), Cedente.Codigo.Substring(10, 1), Cedente.DigitoCedente);
 						break;
@@ -599,6 +602,7 @@ namespace BoletoNet
 					agenciaCodigoCedente = string.Format("{0}.{1}.{2}", Cedente.ContaBancaria.Agencia, Cedente.ContaBancaria.OperacaConta, Cedente.Codigo);
 				else
 					agenciaCodigoCedente = agenciaConta;
+                
 			}
 
 			if (!FormatoCarne)
