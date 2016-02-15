@@ -190,3 +190,4 @@ ModelManifest.xml
 *.dll
 *.pdb
 *.nupkg
+*.nuspec
