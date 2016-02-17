@@ -493,8 +493,8 @@ namespace BoletoNet
                 detalhe.NumeroInscricao = registro.Substring(3, 14);
 
                 //Identificação da Empresa Cedente no Banco
-                detalhe.Agencia = Utils.ToInt32(registro.Substring(24, 6));
-                detalhe.Conta = Utils.ToInt32(registro.Substring(30, 7));
+                detalhe.Agencia = Utils.ToInt32(registro.Substring(24, 5));
+                detalhe.Conta = Utils.ToInt32(registro.Substring(29, 7));
                 detalhe.DACConta = Utils.ToInt32(registro.Substring(36, 1));
 
                 //Nº Controle do Participante

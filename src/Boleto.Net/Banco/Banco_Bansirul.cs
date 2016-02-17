@@ -774,8 +774,8 @@ namespace BoletoNet
                 //detalhe. = Constante1;
                 detalhe.CodigoInscricao = Utils.ToInt32(reg.TipoInscricao);
                 detalhe.NumeroInscricao = reg.CpfCnpj;
-                //detalhe.Agencia = Utils.ToInt32(reg.CodigoCedente.Substring(0, 3));
-                //detalhe.Conta = Utils.ToInt32(reg.CodigoCedente.Substring(4, 7));
+                detalhe.Agencia = Utils.ToInt32(reg.CodigoCedente.Substring(0, 3));
+                detalhe.Conta = Utils.ToInt32(reg.CodigoCedente.Substring(4, 6));
                 //detalhe.DACConta = Utils.ToInt32(reg.CodigoCedente.Substring(36, 1));
 
                 //detalhe. = reg.EspecieCobrancaRegistrada;
@@ -793,7 +793,7 @@ namespace BoletoNet
                 //
                 detalhe.NumeroDocumento = reg.SeuNumero;
                 detalhe.NossoNumeroComDV = reg.NossoNumero;
-                detalhe.NossoNumero = reg.NossoNumero.Substring(0, reg.NossoNumero.Length - 1); //Nosso Número sem o DV!
+                detalhe.NossoNumero = reg.NossoNumero.Substring(0, reg.NossoNumero.Length - 2); //Nosso Número sem o DV!
                 detalhe.DACNossoNumero = reg.NossoNumero.Substring(reg.NossoNumero.Length - 1); //DV
                 //
                 int dataVencimento = Utils.ToInt32(reg.DataVencimentoTitulo);
